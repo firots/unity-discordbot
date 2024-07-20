@@ -1,0 +1,14 @@
+pub const SQLITE_DATABASE_PATH: &str = "SQLITE_DATABASE_PATH";
+pub const DISCORD_TOKEN: &str = "DISCORD_TOKEN";
+pub const OWNERS: &str = "OWNERS";
+pub const GIFT_CODE_CHANNEL: &str = "GIFT_CODE_CHANNEL";
+pub const GIFT_CODE_TEST_CHANNEL: &str = "GIFT_CODE_TEST_CHANNEL";
+pub const UNITY_KEY_ID: &str = "UNITY_KEY_ID";
+pub const UNITY_SECRET_KEY: &str = "UNITY_SECRET_KEY";
+pub const UNITY_PROJECT_ID: &str = "UNITY_PROJECT_ID";
+pub const UNITY_ENVIRONMENT_ID: &str = "UNITY_ENVIRONMENT_ID";
+pub const UNITY_SAVE_DATA_KEY: &str = "UNITY_SAVE_DATA_KEY";
+pub const SUBSCRIPTION_TYPES: &str = "SUBSCRIPTION_TYPES";
+pub const BOT_USER_ID: &str = "BOT_USER_ID";
+pub const INTERACTION_LISTENER_RETRY_DELAY: u64 = 10000;
+pub const DISCORD_BOT_CONFIG_PATH: &str = "discord_bot_config.json";
