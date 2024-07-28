@@ -2,9 +2,9 @@ use std::env;
 use base64::encode;
 use anyhow::anyhow;
 use chrono::{Duration, Utc};
-use serde_json::{from_str, Value};
+use serde_json::Value;
 use crate::constans::{UNITY_ENVIRONMENT_ID, UNITY_KEY_ID, UNITY_PROJECT_ID, UNITY_SAVE_DATA_KEY, UNITY_SECRET_KEY};
-use crate::models::{GamePlatform, GameVersion, GetAllGiftCodesResponse, GiftCode, SaveRequest};
+use crate::models::{GamePlatform, GameVersion, GetAllGiftCodesResponse, GiftCode, SaveValueRequest, SaveStringRequest};
 use crate::Error;
 
 pub struct UnityService {
@@ -94,7 +94,7 @@ impl UnityService {
         let save_url = format!("{}/gift_codes/items", self.custom_url);
     
         let serialized_data = serde_json::to_string(gift_code)?;
-        let request_body = SaveRequest {
+        let request_body = SaveStringRequest {
             key: gift_code_key.to_string(),
             value: serialized_data,
         };
@@ -119,7 +119,7 @@ impl UnityService {
         let update_url = format!("{}/game_version/items", self.custom_url);
     
         let serialized_data = serde_json::to_string(game_version)?;
-        let request_body = SaveRequest {
+        let request_body = SaveStringRequest {
             key: platform.to_string(),
             value: serialized_data,
         };
@@ -181,9 +181,9 @@ impl UnityService {
     pub async fn set_player_item(&self, player_id: &str, key: String, value: Value) -> Result<(), Error> {
         let save_url = format!("{}/{}/items", self.players_url, player_id);
 
-        let request_body = SaveRequest {
+        let request_body = SaveValueRequest {
             key,
-            value: value.to_string(),
+            value,
         };
 
         let response = self.client.post(&save_url)
@@ -202,14 +202,25 @@ impl UnityService {
         Ok(())
     }
 
-    pub async fn get_save_data(&self, player_id: &str) -> Result<Value, Error> {
-        let player_items = self.get_player_items(player_id, self.save_data_key.clone()).await?;
-        let results_array = player_items.get("results").and_then(|v| v.as_array()).ok_or_else(|| anyhow!("Results array not found"))?;
-        let first_result = results_array.get(0).ok_or_else(|| anyhow!("No first result"))?;
-        let value_str = first_result.get("value").and_then(|v| v.as_str()).ok_or_else(|| anyhow!("Value field not found or not a string"))?;
-        let save_data: Value = from_str(value_str)?;
-        Ok(save_data)
+pub async fn get_save_data(&self, player_id: &str) -> Result<Value, Error> {
+    let player_items = self.get_player_items(player_id, self.save_data_key.clone()).await?;
+    let results_array = player_items.get("results").and_then(|v| v.as_array()).ok_or_else(|| anyhow!("Results array not found"))?;
+    let first_result = results_array.get(0).ok_or_else(|| anyhow!("No first result"))?;
+
+    // First, try to parse the value as a string and deserialize
+    if let Some(value_str) = first_result.get("value").and_then(|v| v.as_str()) {
+        match serde_json::from_str(value_str) {
+            Ok(save_data) => Ok(save_data),
+            Err(_) => {
+                // If parsing as a string fails, try to clone the value directly
+                Ok(first_result.get("value").cloned().ok_or_else(|| anyhow!("Failed to clone value directly"))?)
+            }
+        }
+    } else {
+        // If the value is not a string, try to clone it directly
+        Ok(first_result.get("value").cloned().ok_or_else(|| anyhow!("Value field not found or not a string"))?)
     }
+}
 
     pub async fn set_save_data(&self, player_id: &str, save_data: Value) -> Result<(), Error> {
         self.set_player_item(player_id, self.save_data_key.clone(), save_data).await?;

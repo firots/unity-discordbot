@@ -1,6 +1,7 @@
 use std::{fmt, str::FromStr};
 use crate::Error;
 use serde::{de::Error as SerdeError, Deserialize, Deserializer, Serialize};
+use serde_json::Value;
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -44,7 +45,14 @@ pub struct GiftCodeReward {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SaveRequest {
+pub struct SaveValueRequest {
+    pub key: String,
+    pub value: Value,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveStringRequest {
     pub key: String,
     pub value: String,
 }
