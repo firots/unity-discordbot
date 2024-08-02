@@ -10,5 +10,5 @@ pub const UNITY_ENVIRONMENT_ID: &str = "UNITY_ENVIRONMENT_ID";
 pub const UNITY_SAVE_DATA_KEY: &str = "UNITY_SAVE_DATA_KEY";
 pub const SUBSCRIPTION_TYPES: &str = "SUBSCRIPTION_TYPES";
 pub const BOT_USER_ID: &str = "BOT_USER_ID";
-pub const INTERACTION_LISTENER_RETRY_DELAY: u64 = 10000;
+pub const INTERACTION_LISTENER_RETRY_DELAY: u64 = 60;
 pub const DISCORD_BOT_CONFIG_PATH: &str = "discord_bot_config.json";

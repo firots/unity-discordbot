@@ -132,7 +132,6 @@ impl Bot {
                     });
                 },
                 None => {
-                    println!("No interaction received for {}, checking for retry...", channel_id);
                     tokio::time::sleep(std::time::Duration::from_secs(INTERACTION_LISTENER_RETRY_DELAY)).await;
                     continue;
                 }
@@ -194,6 +193,7 @@ impl Bot {
     async fn wait_for_interaction(ctx: &SerenityContext, channel_id: u64) -> Option<ComponentInteraction> {
         ComponentInteractionCollector::new(ctx)
             .channel_id(ChannelId::new(channel_id))
+            .timeout(std::time::Duration::from_secs(INTERACTION_LISTENER_RETRY_DELAY))
             .await
     }
 }
